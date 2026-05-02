@@ -1,0 +1,286 @@
+{
+  "grid": {
+    "cols": 6,
+    "rows": 5
+  },
+  "rules": {
+    "maxCascades": 12,
+    "minSymbolsForPay": 8
+  },
+  "payouts": {
+    "crown": [
+      {
+        "min": 8,
+        "max": 9,
+        "x": 10
+      },
+      {
+        "min": 10,
+        "max": 11,
+        "x": 25
+      },
+      {
+        "min": 12,
+        "max": 99,
+        "x": 50
+      }
+    ],
+    "sandglass": [
+      {
+        "min": 8,
+        "max": 9,
+        "x": 2.5
+      },
+      {
+        "min": 10,
+        "max": 11,
+        "x": 10
+      },
+      {
+        "min": 12,
+        "max": 99,
+        "x": 25
+      }
+    ],
+    "ring": [
+      {
+        "min": 8,
+        "max": 9,
+        "x": 2
+      },
+      {
+        "min": 10,
+        "max": 11,
+        "x": 5
+      },
+      {
+        "min": 12,
+        "max": 99,
+        "x": 15
+      }
+    ],
+    "cup": [
+      {
+        "min": 8,
+        "max": 9,
+        "x": 1.5
+      },
+      {
+        "min": 10,
+        "max": 11,
+        "x": 2
+      },
+      {
+        "min": 12,
+        "max": 99,
+        "x": 12
+      }
+    ],
+    "red": [
+      {
+        "min": 8,
+        "max": 9,
+        "x": 1
+      },
+      {
+        "min": 10,
+        "max": 11,
+        "x": 1.5
+      },
+      {
+        "min": 12,
+        "max": 99,
+        "x": 10
+      }
+    ],
+    "purple": [
+      {
+        "min": 8,
+        "max": 9,
+        "x": 0.8
+      },
+      {
+        "min": 10,
+        "max": 11,
+        "x": 1.2
+      },
+      {
+        "min": 12,
+        "max": 99,
+        "x": 8
+      }
+    ],
+    "yellow": [
+      {
+        "min": 8,
+        "max": 9,
+        "x": 0.5
+      },
+      {
+        "min": 10,
+        "max": 11,
+        "x": 1
+      },
+      {
+        "min": 12,
+        "max": 99,
+        "x": 5
+      }
+    ],
+    "green": [
+      {
+        "min": 8,
+        "max": 9,
+        "x": 0.4
+      },
+      {
+        "min": 10,
+        "max": 11,
+        "x": 0.9
+      },
+      {
+        "min": 12,
+        "max": 99,
+        "x": 4
+      }
+    ],
+    "blue": [
+      {
+        "min": 8,
+        "max": 9,
+        "x": 0.25
+      },
+      {
+        "min": 10,
+        "max": 11,
+        "x": 0.75
+      },
+      {
+        "min": 12,
+        "max": 99,
+        "x": 2
+      }
+    ],
+    "SCATTER_PAY": [
+      {
+        "n": 4,
+        "x": 3
+      },
+      {
+        "n": 5,
+        "x": 5
+      },
+      {
+        "n": 6,
+        "x": 100
+      }
+    ]
+  },
+  "bonus": {
+    "buyCost": 200,
+    "buyBetMultiplier": 100,
+    "spinsOnTrigger": 15,
+    "spinsOnRetrigger": 5,
+    "scattersToTriggerBase": 4,
+    "scattersToRetriggerBonus": 3,
+    "maxRetriggersPerBonus": 4,
+    "scatterWeightAfterCap": 0,
+    "maxWinPerCascadeInX": 5000,
+    "weights": {
+      "crown": 1.5,
+      "sandglass": 3,
+      "ring": 5,
+      "cup": 6,
+      "red": 7,
+      "purple": 8,
+      "yellow": 14,
+      "green": 16,
+      "blue": 18,
+      "SCATTER": 0.93
+    },
+    "bombMultipliers": [
+      {
+        "weight": 45,
+        "x": 2
+      },
+      {
+        "weight": 35,
+        "x": 3
+      },
+      {
+        "weight": 25,
+        "x": 4
+      },
+      {
+        "weight": 18,
+        "x": 5
+      },
+      {
+        "weight": 8,
+        "x": 6
+      },
+      {
+        "weight": 6,
+        "x": 8
+      },
+      {
+        "weight": 5,
+        "x": 10
+      },
+      {
+        "weight": 3,
+        "x": 15
+      },
+      {
+        "weight": 2,
+        "x": 20
+      },
+      {
+        "weight": 1,
+        "x": 25
+      },
+      {
+        "weight": 0.5,
+        "x": 50
+      },
+      {
+        "weight": 0.25,
+        "x": 100
+      },
+      {
+        "weight": 0.15,
+        "x": 500
+      }
+    ],
+    "bombSpawnChanceBase": 0.005,
+    "bombSpawnChanceBonus": 0.02
+  },
+  "ante": {
+    "betMultiplier": 1.25,
+    "scatterChanceMultiplier": 1.47,
+    "weights": {
+      "crown": 1,
+      "sandglass": 2,
+      "ring": 3.5,
+      "cup": 5,
+      "red": 6,
+      "purple": 7,
+      "yellow": 12,
+      "green": 13,
+      "blue": 14,
+      "SCATTER": 1.316
+    }
+  },
+  "weights": {
+    "crown": 4,
+    "sandglass": 5.2,
+    "ring": 6,
+    "cup": 6.8,
+    "red": 7.6,
+    "purple": 8.4,
+    "yellow": 9,
+    "green": 10.5,
+    "blue": 13.5,
+    "SCATTER": 1.316
+  }
+}

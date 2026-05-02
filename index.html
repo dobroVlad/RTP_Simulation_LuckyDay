@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Axioma Analytical Simulator</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <header class="glass-panel">
+      <div class="logo">
+        <span class="logo-icon">🎰</span>
+        <h1>Axioma <span>Simulator</span></h1>
+      </div>
+      <div class="header-stats" id="quick-stats">
+        <div class="stat-box">
+          <span class="stat-label">Total RTP</span>
+          <span class="stat-value" id="hdr-rtp">0.00%</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Settings Panel -->
+      <aside class="panel settings-panel glass-panel">
+        <h2>Simulation Settings</h2>
+        
+        <div class="form-group">
+          <label>Game Engine</label>
+          <select id="sim-engine">
+            <option value="bonanza">Sweet Bonanza (Clone)</option>
+            <option value="olympus">Gates of Olympus (Clone)</option>
+            <option value="doghouse">The Dog House (Clone)</option>
+          </select>
+        </div>
+        
+        <div class="form-group" style="display: flex; gap: 0.5rem; margin-top: -0.5rem;">
+          <button id="btn-export-config" class="hist-btn" style="flex: 1; padding: 0.5rem; font-weight: 600;">📤 Export</button>
+          <button id="btn-import-config" class="hist-btn" style="flex: 1; padding: 0.5rem; font-weight: 600;">📥 Import</button>
+          <input type="file" id="file-import-config" accept=".json" style="display: none;" />
+        </div>
+
+        <div class="form-group">
+          <label>Total Spins</label>
+          <input type="number" id="sim-spins" value="1000000" min="10" step="1000" />
+        </div>
+
+        <div class="form-group">
+          <label>Mode</label>
+          <select id="sim-mode">
+            <option value="BASE">Base Game</option>
+            <option value="ANTE">Ante Bet (x1.25 chance)</option>
+            <option value="BUY">Buy Free Spins (x100.0)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Min Win for EXP (N1)</label>
+          <input type="number" id="sim-exp-min" value="0.5" step="0.1" min="0" />
+        </div>
+
+        <div class="form-group">
+          <label>Max EXP Limit (N2)</label>
+          <input type="number" id="sim-exp-max" value="10" step="0.5" min="0" />
+        </div>
+        
+        <div class="config-editor">
+          <div class="config-tabs">
+            <button class="tab-btn active" data-tab="weights">Weights</button>
+            <button class="tab-btn" data-tab="payouts">Payouts</button>
+            <button class="tab-btn" id="tab-btn-bombs" data-tab="bombs">Bombs</button>
+          </div>
+
+          <div id="tab-weights" class="tab-content active">
+            <div id="multi-reel-selectors" class="multi-reel-selectors" style="display: none;">
+                <select id="reel-mode-select">
+                    <option value="base">Base Game</option>
+                    <option value="free">Free Spins</option>
+                </select>
+                <select id="reel-index-select">
+                    <option value="0">Reel 1</option>
+                    <option value="1">Reel 2</option>
+                    <option value="2">Reel 3</option>
+                    <option value="3">Reel 4</option>
+                    <option value="4">Reel 5</option>
+                </select>
+            </div>
+            <div id="weights-container" class="weights-grid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <div id="tab-payouts" class="tab-content" style="display: none;">
+            <div id="payouts-container" class="payouts-stack">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <div id="tab-bombs" class="tab-content" style="display: none;">
+            <div id="bombs-container" class="weights-grid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-start" class="btn-primary">
+          <span class="btn-text">Start Simulation</span>
+          <div class="btn-glow"></div>
+        </button>
+        
+        <div class="history-panel symbol-rtp-container">
+          <h3>Теоретична ймовірність (Drop)</h3>
+          <div id="theory-prob-list" class="symbol-rtp-list">
+            <div style="color: var(--text-muted); text-align: center; margin-top: 1rem;">Завантаження...</div>
+          </div>
+        </div>
+
+        <div class="history-panel" id="history-container" style="display: none;">
+          <h3>Історія тестів</h3>
+          <div id="history-list"></div>
+        </div>
+
+        <div class="progress-container" id="progress-container" style="display: none;">
+          <div class="progress-text">Simulating <span id="progress-val">0</span>%</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Analytics Dashboard -->
+      <section class="panel analytics-panel glass-panel">
+        <div class="dashboard-grid">
+          <div class="dash-card">
+            <h4>Base Game RTP</h4>
+            <div class="dash-value" id="val-base-rtp">0.00%</div>
+          </div>
+          <div class="dash-card">
+            <h4>Bonus Game RTP</h4>
+            <div class="dash-value" id="val-bonus-rtp">0.00%</div>
+          </div>
+          <div class="dash-card highlight">
+            <h4>Total RTP</h4>
+            <div class="dash-value" id="val-total-rtp">0.00%</div>
+          </div>
+          <div class="dash-card">
+            <h4>Max Win</h4>
+            <div class="dash-value" id="val-max-win">0x</div>
+          </div>
+          <div class="dash-card">
+            <h4>Bonus Hit Frequency</h4>
+            <div class="dash-value" id="val-hit-freq">1 in 0</div>
+          </div>
+          <div class="dash-card">
+            <h4>Avg Bonus Win</h4>
+            <div class="dash-value" id="val-avg-bonus">0x</div>
+          </div>
+          <div class="dash-card highlight" style="border-color: rgba(124, 58, 237, 0.5);">
+            <h4>Avg EXP/Spin</h4>
+            <div class="dash-value" id="val-avg-exp" style="color: #a78bfa;">0.00</div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <h3>Win Distribution (Multiplier)</h3>
+          <div class="chart-wrapper">
+            <canvas id="win-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <h3>EXP Distribution</h3>
+          <div class="chart-wrapper">
+            <canvas id="exp-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-container symbol-rtp-container">
+          <h3>Внесок символів (RTP)</h3>
+          <div id="symbol-rtp-list" class="symbol-rtp-list">
+            <div style="color: var(--text-muted); text-align: center; margin-top: 1rem;">Запустіть симуляцію</div>
+          </div>
+        </div>
+
+        <div class="chart-container symbol-rtp-container">
+          <h3>Частота випадіння символів (Hit Rate)</h3>
+          <div id="symbol-freq-list" class="symbol-rtp-list">
+            <div style="color: var(--text-muted); text-align: center; margin-top: 1rem;">Запустіть симуляцію</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+  <script src="js/config.js"></script>
+  <script src="js/games/bonanza.js"></script>
+  <script src="js/games/olympus.js"></script>
+  <script src="js/games/doghouse.js"></script>
+  <script src="js/core/SimulatorCore.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
