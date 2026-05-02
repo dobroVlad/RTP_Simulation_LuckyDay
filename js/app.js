@@ -122,20 +122,6 @@ function initUI() {
     downloadAnchorNode.remove();
   });
 
-  // Save as Default — exports file named exactly as the JSON fetched by the app
-  document.getElementById('btn-save-default').addEventListener('click', () => {
-    const engine = document.getElementById('sim-engine').value;
-    const fileName = CONFIG_FILES[engine];
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(currentConfig, null, 2));
-    const a = document.createElement('a');
-    a.setAttribute('href', dataStr);
-    a.setAttribute('download', fileName);
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    console.log(`[Config] Saved default config as "${fileName}" — replace the file in your repo and push.`);
-  });
-
   // Import Logic
   const fileInput = document.getElementById('file-import-config');
   document.getElementById('btn-import-config').addEventListener('click', () => {
