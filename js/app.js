@@ -1,6 +1,6 @@
-let currentConfig = JSON.parse(JSON.stringify(BONANZA_CONFIG));
-let gameEngine = new window.BonanzaGame(currentConfig);
-let simulator = new window.SimulatorCore(gameEngine);
+let currentConfig = null;
+let gameEngine = null;
+let simulator = null;
 let winChart = null;
 let expChart = null;
 let lastRunStats = null;
@@ -8,57 +8,28 @@ let baselineStats = null;
 let simulationHistory = [];
 let testCounter = 1;
 
-const PREDEFINED_CONFIGS = {
-  'bonanza': [
-    { label: 'Default Custom Config', path: 'Slot Configs/bonanza_default.json' }
-  ],
-  'olympus': [
-    { label: 'Default Custom Config', path: 'Slot Configs/olympus_default.json' }
-  ],
-  'doghouse': [
-    { label: 'Default Custom Config', path: 'Slot Configs/doghouse_default.json' }
-  ]
+const CONFIG_FILES = {
+  bonanza:  'bonanza_default.json',
+  olympus:  'olympus_default.json',
+  doghouse: 'doghouse_default.json',
+};
+const CONFIG_FALLBACKS = {
+  bonanza:  () => JSON.parse(JSON.stringify(BONANZA_CONFIG)),
+  olympus:  () => JSON.parse(JSON.stringify(OLYMPUS_CONFIG)),
+  doghouse: () => JSON.parse(JSON.stringify(DOG_HOUSE_CONFIG)),
 };
 
-async function loadConfigFromFile(path, fallbackConfig, GameClass) {
-  let loadedConfig = null;
+async function loadConfig(engine) {
   try {
-    const res = await fetch(path);
-    if (res.ok) {
-      loadedConfig = await res.json();
-    }
-  } catch (e) {
-    console.warn(`Could not load config from ${path}`, e);
+    const res = await fetch(CONFIG_FILES[engine]);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    console.log(`[Config] Loaded ${CONFIG_FILES[engine]}`);
+    return data;
+  } catch (err) {
+    console.warn(`[Config] fetch failed (${err.message}), using hardcoded fallback for "${engine}"`);
+    return CONFIG_FALLBACKS[engine]();
   }
-
-  if (loadedConfig) {
-    currentConfig = loadedConfig;
-  } else {
-    currentConfig = JSON.parse(JSON.stringify(fallbackConfig));
-  }
-
-  gameEngine = new GameClass(currentConfig);
-  simulator = new window.SimulatorCore(gameEngine);
-  lastRunStats = null;
-  baselineStats = null;
-  simulationHistory = [];
-  testCounter = 1;
-  renderHistory();
-  renderAllConfigs();
-}
-
-function updateConfigDropdown(engineStr) {
-  const dropdown = document.getElementById('config-dropdown');
-  if (!dropdown) return;
-  dropdown.innerHTML = '<option value="">-- Load predefined config --</option>';
-  
-  const list = PREDEFINED_CONFIGS[engineStr] || [];
-  list.forEach(cfg => {
-    const opt = document.createElement('option');
-    opt.value = cfg.path;
-    opt.textContent = cfg.label + ` (${cfg.path})`;
-    dropdown.appendChild(opt);
-  });
 }
 
 function renderAllConfigs() {
@@ -70,44 +41,24 @@ function renderAllConfigs() {
 
 function initUI() {
   const engineSelect = document.getElementById('sim-engine');
-  engineSelect.addEventListener('change', () => {
-    let eng = engineSelect.value;
-    updateConfigDropdown(eng);
-    
-    let fallback = BONANZA_CONFIG;
-    let GameClass = window.BonanzaGame;
-    
+  engineSelect.addEventListener('change', async () => {
+    const eng = engineSelect.value;
+    currentConfig = await loadConfig(eng);
     if (eng === 'olympus') {
-      fallback = OLYMPUS_CONFIG;
-      GameClass = window.OlympusGame;
+      gameEngine = new window.OlympusGame(currentConfig);
     } else if (eng === 'doghouse') {
-      fallback = DOG_HOUSE_CONFIG;
-      GameClass = window.DogHouseGame;
-    }
-    
-    // Automatically try to load the first predefined config (the default one)
-    const defaultPath = (PREDEFINED_CONFIGS[eng] && PREDEFINED_CONFIGS[eng].length > 0) ? PREDEFINED_CONFIGS[eng][0].path : null;
-    if (defaultPath) {
-        loadConfigFromFile(defaultPath, fallback, GameClass);
+      gameEngine = new window.DogHouseGame(currentConfig);
     } else {
-        currentConfig = JSON.parse(JSON.stringify(fallback));
-        gameEngine = new GameClass(currentConfig);
-        simulator = new window.SimulatorCore(gameEngine);
-        lastRunStats = null;
-        baselineStats = null;
-        simulationHistory = [];
-        testCounter = 1;
-        renderHistory();
-        renderAllConfigs();
+      gameEngine = new window.BonanzaGame(currentConfig);
     }
+    simulator = new window.SimulatorCore(gameEngine);
+    lastRunStats = null;
+    baselineStats = null;
+    simulationHistory = [];
+    testCounter = 1;
+    renderHistory();
+    renderAllConfigs();
   });
-
-  // Initial setup for default engine (bonanza)
-  updateConfigDropdown('bonanza');
-  const initialPath = PREDEFINED_CONFIGS['bonanza'][0]?.path;
-  if (initialPath) {
-      loadConfigFromFile(initialPath, BONANZA_CONFIG, window.BonanzaGame);
-  }
 
   const modeSelect = document.getElementById('sim-mode');
   modeSelect.addEventListener('change', () => {
@@ -144,7 +95,7 @@ function initUI() {
     }
   });
 
-  // Export Logic
+  // Export Logic (with optional RTP suffix for archiving)
   document.getElementById('btn-export-config').addEventListener('click', () => {
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(currentConfig, null, 2));
     const engine = document.getElementById('sim-engine').value;
@@ -169,6 +120,20 @@ function initUI() {
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
+  });
+
+  // Save as Default — exports file named exactly as the JSON fetched by the app
+  document.getElementById('btn-save-default').addEventListener('click', () => {
+    const engine = document.getElementById('sim-engine').value;
+    const fileName = CONFIG_FILES[engine];
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(currentConfig, null, 2));
+    const a = document.createElement('a');
+    a.setAttribute('href', dataStr);
+    a.setAttribute('download', fileName);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    console.log(`[Config] Saved default config as "${fileName}" — replace the file in your repo and push.`);
   });
 
   // Import Logic
@@ -198,25 +163,6 @@ function initUI() {
     reader.readAsText(file);
   });
 
-  const configDropdown = document.getElementById('config-dropdown');
-  if (configDropdown) {
-    configDropdown.addEventListener('change', (event) => {
-      const path = event.target.value;
-      if (!path) return;
-      
-      let eng = document.getElementById('sim-engine').value;
-      let GameClass = window.BonanzaGame;
-      let fallback = BONANZA_CONFIG;
-      if (eng === 'olympus') { GameClass = window.OlympusGame; fallback = OLYMPUS_CONFIG; }
-      else if (eng === 'doghouse') { GameClass = window.DogHouseGame; fallback = DOG_HOUSE_CONFIG; }
-      
-      loadConfigFromFile(path, fallback, GameClass);
-      // Reset dropdown to default option so user can re-trigger it if needed
-      configDropdown.selectedIndex = 0;
-    });
-  }
-
-  // Render immediately for fallback while async load runs
   renderAllConfigs();
   initChart();
 }
@@ -914,4 +860,9 @@ function formatRtpWithColor(rtpVal) {
   return (rtpVal * 100).toFixed(2) + '%';
 }
 
-document.addEventListener('DOMContentLoaded', initUI);
+document.addEventListener('DOMContentLoaded', async () => {
+  currentConfig = await loadConfig('bonanza');
+  gameEngine = new window.BonanzaGame(currentConfig);
+  simulator = new window.SimulatorCore(gameEngine);
+  initUI();
+});
