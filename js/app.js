@@ -12,11 +12,13 @@ const CONFIG_FILES = {
   bonanza:  'bonanza_default.json',
   olympus:  'olympus_default.json',
   doghouse: 'doghouse_default.json',
+  bookofra: 'bookofra_default.json',
 };
 const CONFIG_FALLBACKS = {
   bonanza:  () => JSON.parse(JSON.stringify(BONANZA_CONFIG)),
   olympus:  () => JSON.parse(JSON.stringify(OLYMPUS_CONFIG)),
   doghouse: () => JSON.parse(JSON.stringify(DOG_HOUSE_CONFIG)),
+  bookofra: () => JSON.parse(JSON.stringify(BOOK_OF_RA_CONFIG)),
 };
 
 async function loadConfig(engine) {
@@ -48,6 +50,8 @@ function initUI() {
       gameEngine = new window.OlympusGame(currentConfig);
     } else if (eng === 'doghouse') {
       gameEngine = new window.DogHouseGame(currentConfig);
+    } else if (eng === 'bookofra') {
+      gameEngine = new window.BookOfRaGame(currentConfig);
     } else {
       gameEngine = new window.BonanzaGame(currentConfig);
     }
@@ -280,7 +284,12 @@ function renderPayoutsGrid() {
   const container = document.getElementById('payouts-container');
   container.innerHTML = '';
   
-  for (let sym in currentConfig.payouts) {
+  let allPayouts = { ...currentConfig.payouts };
+  if (currentConfig.scatterPayouts) {
+      allPayouts['SCATTER_PAY'] = currentConfig.scatterPayouts;
+  }
+
+  for (let sym in allPayouts) {
     const div = document.createElement('div');
     div.className = 'payout-item';
     
@@ -289,7 +298,7 @@ function renderPayoutsGrid() {
     title.innerText = sym;
     div.appendChild(title);
     
-    let payoutsObj = currentConfig.payouts[sym];
+    let payoutsObj = allPayouts[sym];
     
     if (Array.isArray(payoutsObj)) {
       payoutsObj.forEach((p, index) => {
@@ -320,6 +329,11 @@ function renderPayoutsGrid() {
         const ipt = row.querySelector('input');
         ipt.addEventListener('change', e => {
             payoutsObj[count] = parseFloat(e.target.value) || 0;
+            if (sym === 'SCATTER_PAY' && currentConfig.scatterPayouts) {
+                currentConfig.scatterPayouts[count] = payoutsObj[count];
+            } else {
+                currentConfig.payouts[sym][count] = payoutsObj[count];
+            }
             gameEngine.config = currentConfig;
         });
         div.appendChild(row);

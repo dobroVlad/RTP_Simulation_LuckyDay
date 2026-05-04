@@ -353,3 +353,95 @@ const DOG_HOUSE_CONFIG = {
     weights: { 1: 1, 2: 1, 3: 1 },
   },
 };
+
+const baseWeightsBookOfRa = {
+  EXPLORER: 2.0,
+  PHARAOH: 3.0,
+  SPHINX: 4.0,
+  SCARAB: 5.5,
+  BOOK: 12.5,
+  A: 10,
+  K: 11,
+  Q: 13,
+  J: 14,
+  TEN: 15,
+};
+
+const freeWeightsBookOfRa = {
+  EXPLORER: 3.0,
+  PHARAOH: 4.5,
+  SPHINX: 5.5,
+  SCARAB: 7.0,
+  BOOK: 3.5,
+  A: 12,
+  K: 13,
+  Q: 15,
+  J: 16,
+  TEN: 16,
+};
+
+const BOOK_OF_RA_CONFIG = {
+  grid: { rows: 3, cols: 5 },
+
+  paylines: [
+    [1, 1, 1, 1, 1], // 1  — middle row
+    [0, 0, 0, 0, 0], // 2  — top row
+    [2, 2, 2, 2, 2], // 3  — bottom row
+    [0, 1, 2, 1, 0], // 4  — V shape
+    [2, 1, 0, 1, 2], // 5  — inverted V
+    [1, 2, 2, 2, 1], // 6
+    [1, 0, 0, 0, 1], // 7
+    [2, 2, 1, 0, 0], // 8
+    [0, 0, 1, 2, 2], // 9
+    [2, 1, 1, 1, 0], // 10
+  ],
+
+  paySymbols: [
+    "EXPLORER",
+    "PHARAOH",
+    "SPHINX",
+    "SCARAB",
+    "A",
+    "K",
+    "Q",
+    "J",
+    "TEN",
+  ],
+
+  payouts: {
+    EXPLORER: { 2: 1, 3: 10, 4: 100, 5: 500 },
+    PHARAOH: { 2: 0.5, 3: 4, 4: 40, 5: 200 },
+    SPHINX: { 2: 0.5, 3: 3, 4: 10, 5: 75 },
+    SCARAB: { 2: 0.5, 3: 3, 4: 10, 5: 75 },
+    A: { 3: 0.5, 4: 4, 5: 15 },
+    K: { 3: 0.5, 4: 4, 5: 15 },
+    Q: { 3: 0.5, 4: 2.5, 5: 10 },
+    J: { 3: 0.5, 4: 2.5, 5: 10 },
+    TEN: { 3: 0.5, 4: 2.5, 5: 10 },
+  },
+
+  scatterPayouts: {
+    3: 2,
+    4: 20,
+    5: 200,
+  },
+
+  scatterTriggerCount: 3,
+  freeSpinsAwarded: 10,
+  buyCost: 100,
+
+  weights: baseWeightsBookOfRa,
+  freeWeights: freeWeightsBookOfRa,
+
+  expandingSymbolWeights: {
+    EXPLORER: 6,
+    PHARAOH: 6,
+    SPHINX: 6,
+    SCARAB: 6,
+    A: 5,
+    K: 5,
+    Q: 6,
+    J: 6,
+    TEN: 6,
+  },
+};
